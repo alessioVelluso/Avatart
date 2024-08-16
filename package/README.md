@@ -1,5 +1,9 @@
 # Avatart
-`v1.0.0`
+`v1.0.1`
+
+For examples look at [Github Repository]("https://github.com/alessioVelluso/Avatart)
+
+
 
 This library run with the **native node APIs**, there is no dependency or api call so after the installation you can use this generator without internet too.
 

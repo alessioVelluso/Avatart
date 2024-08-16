@@ -1,5 +1,12 @@
 ﻿# Avatart
-`v1.0.0`
+`v1.0.1`
+
+![screenshot](test/outputs/cycleOut_1.png)
+![screenshot](test/outputs/cycleOut_4.png)
+![screenshot](test/outputs/cycleOut_8.png)
+![screenshot](test/outputs/cycleOut_15.png)
+![screenshot](test/outputs/nice_3.png)
+
 
 This library run with the **native node APIs**, there is no dependency or api call so after the installation you can use this generator without internet too.
 
