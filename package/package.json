@@ -1,0 +1,35 @@
+{
+  "name": "node-avatar-generator",
+  "version": "0.0.1",
+  "author": "Alessio Velluso",
+  "license": "MIT",
+  "description": "Simple png generator with symmetric pixel avatar",
+  "repository": {
+    "url": "https://github.com/alessioVelluso/NodeAvatarGenerator"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.1.0",
+    "typescript": "^5.4.5"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup"
+  },
+  "keywords": [
+    "avatar",
+    "png",
+    "random",
+    "image",
+    "default"
+  ]
+}
