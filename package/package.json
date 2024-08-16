@@ -1,6 +1,6 @@
 {
   "name": "node-avatar-generator",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Alessio Velluso",
   "license": "MIT",
   "description": "Simple png generator with symmetric pixel avatar",
@@ -30,6 +30,8 @@
     "png",
     "random",
     "image",
-    "default"
+    "default",
+    "pixel",
+    "minimal"
   ]
 }

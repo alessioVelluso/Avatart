@@ -1,41 +1,39 @@
-import { Symmetry, Grid } from "../types/generics";
+import { Symmetry, Grid, SizeDetails } from "../types/generics";
 import { IGridGenerator } from "../types/interfaces";
 
 export class GridGenerator implements IGridGenerator {
     // --- Data
     public readonly symmetryOptions:Symmetry[] = ["horizontal", "vertical"];
 
-    protected readonly size:number;
-    protected readonly halfSize:number;
-    protected readonly isPair:boolean;
-    protected readonly evenMiddlePoint:number | null;
+    protected readonly size:number = 7;
+    protected readonly symmetry:Symmetry | undefined;
 
-    constructor(size?:number) {
-        this.size = size ?? 5;
-        this.halfSize = Math.floor(this.size / 2);
-        this.isPair = this.size - (this.halfSize * 2) === 0;
-        this.evenMiddlePoint = this.isPair ? null : this.size - this.halfSize;
+    constructor(gridSize?:number, symmetry?:Symmetry) {
+        this.size = gridSize ?? this.size;
+        this.symmetry = symmetry ?? undefined
     }
     // --- ;
 
 
-    public createGrid = ():Grid => {
+    public createGrid = (gridSize?:number, symmetry?:Symmetry):Grid => {
         let finalGrid:Grid = [];
 
-        const symmetry:Symmetry = this.symmetryOptions[Math.floor(Math.random() * this.symmetryOptions.length)];
-        const chunk = this.createChunk(symmetry);
+        const sizeDetails = this.getSizeDetails(gridSize);
 
-        if (symmetry === "horizontal") finalGrid = this.manageHorizontalSymmetry(chunk);
-        else finalGrid = this.manageVerticalSymmetry(chunk);
+        const finalSymmetry:Symmetry = symmetry ?? this.symmetry ?? this.symmetryOptions[Math.floor(Math.random() * this.symmetryOptions.length)];
+        const chunk = this.createChunk(finalSymmetry, sizeDetails.size, sizeDetails.halfSize);
+
+        if (finalSymmetry === "horizontal") finalGrid = this.manageHorizontalSymmetry(chunk, sizeDetails);
+        else finalGrid = this.manageVerticalSymmetry(chunk, sizeDetails);
 
         return finalGrid;
     }
 
 
     // --- Symmetry manager
-    private createChunk(symmetry:Symmetry):Grid {
-        const ySize = symmetry === "horizontal" ? this.halfSize : this.size;
-        const xSize = symmetry === "horizontal" ? this.size : this.halfSize;
+    private createChunk(symmetry:Symmetry, size:number, halfSize:number):Grid {
+        const ySize = symmetry === "horizontal" ? halfSize : size;
+        const xSize = symmetry === "horizontal" ? size : halfSize;
 
         let chunk:Grid = [];
         for(let y = 0; y < ySize; y++) {
@@ -50,21 +48,20 @@ export class GridGenerator implements IGridGenerator {
         return chunk;
     }
 
-    private manageHorizontalSymmetry(chunk:Grid):Grid {
+    private manageHorizontalSymmetry(chunk:Grid, sizeDetails:SizeDetails):Grid {
         const finalGrid:Grid = [];
 
-        let offset:0 | 1 = this.isPair ? 0 : 1;
-        for(let y = 0; y < this.size; y++) {
+        const offset: 0 | 1 = sizeDetails.isPair ? 1 : 0
+        for(let y = 0; y < sizeDetails.size; y++) {
             let row:number[] = [];
-
-            if (this.evenMiddlePoint && y === this.evenMiddlePoint - 1) {
-                for(let x = 0; x < this.size; x++) {
+            if (sizeDetails.evenMiddlePoint && y === sizeDetails.evenMiddlePoint - 1) {
+                for(let x = 0; x < sizeDetails.size; x++) {
                     row.push(Math.floor(Math.random() * 2))
                 }
             }
             else {
-                let chunkY = (y > this.halfSize) ? (this.size - y - offset) : y;
-                for(let x = 0; x < this.size; x++) {
+                let chunkY = (y > sizeDetails.halfSize - offset) ? (sizeDetails.size - y - 1) : y;
+                for(let x = 0; x < sizeDetails.size; x++) {
                     row.push(chunk[chunkY][x]);
                 }
             }
@@ -74,19 +71,19 @@ export class GridGenerator implements IGridGenerator {
 
         return finalGrid;
     }
-    private manageVerticalSymmetry(chunk:Grid):Grid {
+    private manageVerticalSymmetry(chunk:Grid, sizeDetails:SizeDetails):Grid {
         const finalGrid:Grid = [];
 
-        let offset:0 | 1 = this.isPair ? 0 : 1;
-        for(let y = 0; y < this.size; y++) {
+        const offset: 0 | 1 = sizeDetails.isPair ? 1 : 0
+        for(let y = 0; y < sizeDetails.size; y++) {
             let row:number[] = [];
 
-            for(let x = 0; x < this.size; x++) {
-                if (this.evenMiddlePoint && x === this.evenMiddlePoint - 1) {
+            for(let x = 0; x < sizeDetails.size; x++) {
+                if (sizeDetails.evenMiddlePoint && x === sizeDetails.evenMiddlePoint - 1) {
                     row.push(Math.floor(Math.random() * 2))
                 }
                 else {
-                    let chunkX = (x > this.halfSize) ? (this.size - x - offset) : x;
+                    let chunkX = (x > sizeDetails.halfSize - offset) ? (sizeDetails.size - x - 1) : x;
                     row.push(chunk[y][chunkX]);
                 }
 
@@ -96,6 +93,18 @@ export class GridGenerator implements IGridGenerator {
         }
 
         return finalGrid;
+    }
+    // --- ;
+
+
+    // --- Utils
+    private getSizeDetails(gridSize?:number):SizeDetails {
+        const size = gridSize ?? this.size;
+        const halfSize = Math.floor(size / 2);
+        const isPair = size - (halfSize * 2) === 0;
+        const evenMiddlePoint = isPair ? null : size - halfSize;
+
+        return { size, halfSize, isPair, evenMiddlePoint }
     }
     // --- ;
 }

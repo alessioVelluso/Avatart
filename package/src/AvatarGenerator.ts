@@ -1,4 +1,5 @@
-import { Grid, Size, IdatAndIendChunks, RgbObject, AvatarGeneratorConstructor } from "../types/generics";
+import { Grid, Size, IdatAndIendChunks, RgbArray, PngDetails } from "../types/generics";
+import { AvatarGeneratorConstructor } from "../types/interfaces";
 import fs from 'fs';
 import zlib from 'zlib'
 import { GridGenerator } from "./GridGenerator";
@@ -9,38 +10,40 @@ export class AvatarGenerator extends GridGenerator implements IAvatarGenerator {
     private readonly crcTable:Uint32Array;
 
     public readonly pngSignature:Buffer = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-    public readonly squareSize:number = 10;
+    public readonly squareSize:number = 40;
     public readonly padding:number;
-    public readonly color:RgbObject | null;
-    public readonly backColor:RgbObject | null;
+    public readonly color:RgbArray | undefined = undefined;
+    public readonly backColor:RgbArray | undefined = undefined;
 
     constructor(constructor?:AvatarGeneratorConstructor) {
-        super(constructor?.gridSize);
+        super(constructor?.gridSize, constructor?.symmetry);
 
-        this.squareSize = constructor?.squareSize ?? this.squareSize;
-        this.padding = Math.ceil(this.squareSize / 2);
-
-        this.color = constructor?.color ?? null;
-        this.backColor = constructor?.backColor ?? null;
+        const { squareSize, padding, color, backColor } = this.getDefaultOptions(constructor);
+        this.squareSize = squareSize;
+        this.padding = padding;
+        this.color = color;
+        this.backColor = backColor;
 
         this.crcTable = this.createCrcTable();
     }
     // --- ;
 
     // --- Public Methods
-    public writePngFile = (grid:Grid, fileTitle:string) => {
-        const outputBuffer:Buffer = this.getPngBuffer(grid);
+    public writeGridAvatarFile = (grid:Grid, fileTitle:string, options?:AvatarGeneratorConstructor) => {
+        const outputBuffer:Buffer = this.getGridAvatarBuffer(grid, options);
         fs.writeFileSync(`${fileTitle}.png`, outputBuffer);
     }
-    public writeRandomPngFile = (fileTitle:string) => {
-        const grid = this.createGrid();
-        this.writePngFile(grid, fileTitle);
+    public writeAvatarFile = (fileTitle:string, options?:AvatarGeneratorConstructor) => {
+        const grid = this.createGrid(options?.gridSize, options?.symmetry);
+        this.writeGridAvatarFile(grid, fileTitle, options);
     }
 
-    public getPngBuffer = (grid:Grid):Buffer => {
-        const { width, height } = this.getSize(grid);
+    public getGridAvatarBuffer = (grid:Grid, options?:AvatarGeneratorConstructor):Buffer => {
+        const pgnDetails = this.getDefaultOptions(options);
+
+        const { width, height } = this.getSize(grid, pgnDetails);
         const ihdrChunk = this.writePngChunk(width, height);
-        const { idatChunk, iendChunk } = this.writeIDATandIENDChunks(grid, width, height)
+        const { idatChunk, iendChunk } = this.writeIDATandIENDChunks(grid, width, height, pgnDetails)
 
         return Buffer.concat([
             this.pngSignature,
@@ -49,24 +52,24 @@ export class AvatarGenerator extends GridGenerator implements IAvatarGenerator {
             iendChunk
         ]);
     }
-    public getRandomPngBuffer = ():Buffer => {
-        const grid = this.createGrid();
-        return this.getPngBuffer(grid);
+    public getAvatarBuffer = (options?:AvatarGeneratorConstructor):Buffer => {
+        const grid = this.createGrid(options?.gridSize, options?.symmetry);
+        return this.getGridAvatarBuffer(grid, options);
     }
 
-    public getRandomColor():RgbObject {
+    public getRandomColor():RgbArray {
         const r = Math.floor(Math.random() * 256);
         const g = Math.floor(Math.random() * 256);
         const b = Math.floor(Math.random() * 256);
 
-        return { r, g, b }
+        return [ r, g, b ]
     }
     // --- ;
 
     // --- Build PNG Buffer
-    private getSize = (grid:Grid):Size => {
-        const width = (grid[0].length * this.squareSize) + (2 * this.padding);
-        const height = (grid.length * this.squareSize) + (2 * this.padding);
+    private getSize = (grid:Grid, pngDetails:PngDetails):Size => {
+        const width = (grid[0].length * pngDetails.squareSize) + (2 * pngDetails.padding);
+        const height = (grid.length * pngDetails.squareSize) + (2 * pngDetails.padding);
 
         return { width, height }
     }
@@ -94,31 +97,38 @@ export class AvatarGenerator extends GridGenerator implements IAvatarGenerator {
         return ihdrChunk;
     }
 
-    private writeIDATandIENDChunks = (grid:Grid, width:number, height:number):IdatAndIendChunks =>
+    private writeIDATandIENDChunks = (grid:Grid, width:number, height:number, pngDetails:PngDetails):IdatAndIendChunks =>
     {
         // Creare chunk IDAT
         let idatData = Buffer.alloc(width * height * 3 + height); // Data con filtri
         let pos = 0;
 
         const randomColor = this.getRandomColor();
+        const frontColor = {
+            r: pngDetails.color ? pngDetails.color[0] : randomColor[0],
+            g: pngDetails.color ? pngDetails.color[1] : randomColor[1],
+            b: pngDetails.color ? pngDetails.color[2] : randomColor[2]
+        }
         for (let y = 0; y < height; y++) {
             idatData[pos++] = 0; // Nessun filtro
             for (let x = 0; x < width; x++) {
-                let { r, g, b } = this.backColor ?? { r:255, g:255, b:255 };
+                let [r, g, b] = pngDetails.backColor ?? [255,255,255];
                 if
                 (
-                    x >= this.padding
-                    && x < width - this.padding
-                    && y >= this.padding
-                    && y < height - this.padding
+                    x >= pngDetails.padding
+                    && x < width - pngDetails.padding
+                    && y >= pngDetails.padding
+                    && y < height - pngDetails.padding
                 )
                 {
-                    const gridX = Math.floor((x - this.padding) / this.squareSize);
-                    const gridY = Math.floor((y - this.padding) / this.squareSize);
+                    // Here we are inside the grid (excluding padding)
+                    const gridX = Math.floor((x - pngDetails.padding) / pngDetails.squareSize);
+                    const gridY = Math.floor((y - pngDetails.padding) / pngDetails.squareSize);
                     if (grid[gridY][gridX] === 1) {
-                        r = this.color?.r ?? randomColor.r;
-                        g = this.color?.g ?? randomColor.g;
-                        b = this.color?.b ?? randomColor.b;
+                        // Here we found a colored spot and set the color to the required one | the default one | random one
+                        r = frontColor.r;
+                        g = frontColor.g;
+                        b = frontColor.b;
                     }
                 }
 
@@ -180,4 +190,15 @@ export class AvatarGenerator extends GridGenerator implements IAvatarGenerator {
         return (crc ^ 0xffffffff) >>> 0;
     }
     // --- ;
+
+
+    private getDefaultOptions(options?:AvatarGeneratorConstructor):PngDetails {
+        const squareSize = options?.squareSize ?? this.squareSize;
+        const padding = Math.ceil(squareSize / 2);
+
+        const color = options?.color ?? this.color ?? undefined;
+        const backColor = options?.backColor ?? this.color ?? undefined;
+
+        return { squareSize, padding, color, backColor }
+    }
 }
