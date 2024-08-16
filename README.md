@@ -11,11 +11,11 @@
 This library run with the **native node APIs**, there is no dependency or api call so after the installation you can use this generator without internet too.
 
 ```bash
-npm i node-avatar-generator
+npm i avatart
 ```
 
 ```ts
-import { AvatarGenerator } from "node-avatar-generator";
+import { AvatarGenerator } from "avatart";
 
 const avatarGenerator = new AvatarGenerator();
 

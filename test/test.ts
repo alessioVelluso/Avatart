@@ -1,4 +1,4 @@
-import { AvatarGenerator } from "node-avatar-generator";
+import { AvatarGenerator } from "avatart";
 
 // --- Random Colors
 const avatarGenerator = new AvatarGenerator({ squareSize: 40 });

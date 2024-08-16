@@ -1,6 +1,6 @@
 {
   "name": "avatart",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Alessio Velluso",
   "license": "MIT",
   "description": "Simple png generator with symmetric pixel avatar",
