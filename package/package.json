@@ -1,11 +1,11 @@
 {
   "name": "avatart",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Alessio Velluso",
   "license": "MIT",
   "description": "Simple png generator with symmetric pixel avatar",
   "repository": {
-    "url": "https://github.com/alessioVelluso/NodeAvatarGenerator"
+    "url": "https://github.com/alessioVelluso/Avatart"
   },
   "devDependencies": {
     "@types/node": "^20.14.2",
