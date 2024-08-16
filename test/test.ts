@@ -22,3 +22,6 @@ for (let i = 0; i < 5; i++) {
     const filePath = `./outputs/nice_${i+1}`
     avatarGenerator.writeAvatarFile(filePath, { gridSize:13, symmetry:"vertical" });
 }
+
+
+const buffer:Buffer = avatarGenerator.getAvatarBuffer();

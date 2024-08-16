@@ -1,5 +1,5 @@
 ﻿# Avatart
-`v1.0.1`
+`v1.0.3`
 
 ![screenshot](test/outputs/cycleOut_1.png)
 ![screenshot](test/outputs/cycleOut_4.png)
@@ -20,10 +20,10 @@ import { AvatarGenerator } from "avatart";
 const avatarGenerator = new AvatarGenerator();
 
 // Write a png
-avatarGenerator.writeRandomPngFile("./outputs/output2a");
+avatarGenerator.writeAvatarFile("./outputs/output2a");
 
 // Or get it as a buffer
-const avatarBuffer:Buffer = avatarGenerator.getRandomPngBuffer();
+const avatarBuffer:Buffer = avatarGenerator.getAvatarBuffer();
 ```
 You can initialize the class with some default options or pass the same object type to every method that generates an avatar.
 If you don't pass any arguments to the functions, the generations will be made on the class-initialization options.
