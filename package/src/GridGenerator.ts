@@ -5,11 +5,11 @@ export class GridGenerator implements IGridGenerator {
     // --- Data
     public readonly symmetryOptions:Symmetry[] = ["horizontal", "vertical"];
 
-    protected readonly size:number = 7;
+    protected readonly size:number;
     protected readonly symmetry:Symmetry | undefined;
 
-    constructor(gridSize?:number, symmetry?:Symmetry) {
-        this.size = gridSize ?? this.size;
+    constructor(gridSize:number, symmetry?:Symmetry) {
+        this.size = gridSize;
         this.symmetry = symmetry ?? undefined
     }
     // --- ;

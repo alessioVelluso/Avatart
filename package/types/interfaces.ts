@@ -16,7 +16,7 @@ export interface IAvatarGenerator extends IGridGenerator {
 
 export interface IGridGenerator {
     readonly symmetryOptions:Symmetry[];
-    createGrid: (gridSize?:number, symmetry?:Symmetry) => Grid;
+    createGrid: (gridSize:number, symmetry?:Symmetry) => Grid;
 }
 
 
@@ -25,5 +25,6 @@ export type AvatarGeneratorConstructor = {
     gridSize?:number,
     color?:RgbArray,
     backColor?:RgbArray,
-    symmetry?:Symmetry
+    symmetry?:Symmetry,
+    fixedSize?:number
 }

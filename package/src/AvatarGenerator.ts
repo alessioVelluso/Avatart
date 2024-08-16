@@ -8,15 +8,20 @@ import { IAvatarGenerator } from "../types/interfaces";
 export class AvatarGenerator extends GridGenerator implements IAvatarGenerator {
     // --- Data
     private readonly crcTable:Uint32Array;
+    private readonly gridSize:number;
 
     public readonly pngSignature:Buffer = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    public readonly fixedSize:number | undefined;
+
     public readonly squareSize:number = 40;
     public readonly padding:number;
     public readonly color:RgbArray | undefined = undefined;
     public readonly backColor:RgbArray | undefined = undefined;
 
     constructor(constructor?:AvatarGeneratorConstructor) {
-        super(constructor?.gridSize, constructor?.symmetry);
+        super(constructor?.gridSize ?? 5, constructor?.symmetry);
+        this.gridSize = constructor?.gridSize ?? 5;
+        this.fixedSize = constructor?.fixedSize ?? undefined;
 
         const { squareSize, padding, color, backColor } = this.getDefaultOptions(constructor);
         this.squareSize = squareSize;
@@ -68,8 +73,8 @@ export class AvatarGenerator extends GridGenerator implements IAvatarGenerator {
 
     // --- Build PNG Buffer
     private getSize = (grid:Grid, pngDetails:PngDetails):Size => {
-        const width = (grid[0].length * pngDetails.squareSize) + (2 * pngDetails.padding);
-        const height = (grid.length * pngDetails.squareSize) + (2 * pngDetails.padding);
+        const width = this.fixedSize ?? ((grid[0].length * pngDetails.squareSize) + (2 * pngDetails.padding));
+        const height = this.fixedSize ?? ((grid.length * pngDetails.squareSize) + (2 * pngDetails.padding));
 
         return { width, height }
     }
@@ -193,9 +198,12 @@ export class AvatarGenerator extends GridGenerator implements IAvatarGenerator {
 
 
     private getDefaultOptions(options?:AvatarGeneratorConstructor):PngDetails {
-        const squareSize = options?.squareSize ?? this.squareSize;
-        const padding = Math.ceil(squareSize / 2);
 
+        const squareSize = (this.fixedSize)
+            ? this.fixedSize / ((options?.gridSize ?? this.gridSize) + 1)
+            : options?.squareSize ?? this.squareSize;
+
+        const padding = squareSize / 2;
         const color = options?.color ?? this.color ?? undefined;
         const backColor = options?.backColor ?? this.color ?? undefined;
 
