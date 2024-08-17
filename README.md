@@ -71,5 +71,17 @@ export interface IGridGenerator {
 }
 ```
 
+## Docker
+There is a simple and silly container that expose the port 3000.
+On `/` you have the client.
+On `/avatar` you have the api that gives you a random Avatar 300x300
+```
+docker pull alessiovelluso/avatart
+docker run --name avatart -p 3000:3000 alessiovelluso/avatart
+```
+Or you can build the image by pulling this repo and using the Dockerfile in the /container dir.
+There's a docker compose too if you need it.
 
 Have fun.
+
+
