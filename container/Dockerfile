@@ -11,7 +11,7 @@ COPY ./back/package-lock.json ./
 RUN npm install
 
 # Copia il resto del codice nell'immagine
-COPY ./back/dist/ ./
+COPY ./back/build ./
 COPY ./back/client ./client
 
 # Espone la porta su cui l'applicazione sarà eseguita
