@@ -10,7 +10,7 @@ onMounted(() => getPicture());
 
 const getPicture = async () => {
 	try {
-		const res = await axios.get("http://127.0.0.1:3000/avatar", {
+		const res = await axios.get("/avatar", {
 			params: { gridSize: gridSize.value },
 			responseType: "arraybuffer"
 		});

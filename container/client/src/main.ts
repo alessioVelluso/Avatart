@@ -1,9 +1,9 @@
-import { createApp } from "vue";
-import { createPinia } from "pinia";
 import axios from "axios";
+import { createPinia } from "pinia";
+import { createApp } from "vue";
+import App from "./App.vue";
 import router from "./router/_init.ts";
 import vuetify from "./theme/vuetify.ts";
-import App from "./App.vue";
 
 const pinia = createPinia();
 
